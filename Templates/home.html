@@ -1,0 +1,31 @@
+﻿{% extends 'layouts.html' %}
+
+{% block body %}
+{% include 'includes/_navbar.html' %}
+{% if loginID != False %}
+{% include 'includes/_jumbotron.html' %}
+{%if len %}
+    <div class="row text-center">
+
+        {% for i in range(0, len) %}
+
+
+        
+
+        {{ result[i] | safe }}
+
+        {% endfor %}
+
+    </div>
+{% endif %}
+{% else %}
+{% include 'includes/PleaseLogin.html' %}
+{% endif %}
+
+<div class="d-inline p-2 bg-primary text-white">Lon {{contentLongit}}</div>
+<div class="d-inline p-2 bg-dark text-white">Lat  {{contentLat}}</div>
+
+
+
+
+        {% endblock %}

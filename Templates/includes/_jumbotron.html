@@ -1,0 +1,29 @@
+﻿<header class="jumbotron my-4">
+    <h1 class="display-3"> Welcome! {{ loginID['email'] }} </h1>
+
+    <p class="lead">Find out what bills are being voted on this upcoming election by using your zipcode and state!.</p>
+    <div class="row">
+        <form method="POST">
+            <div class="form-group">
+                <label for="inputCity">City</label>
+                <input type="text" class="form-control" id="Cityname" name="inputCity" placeholder="inputCity" />
+                <select class="custom-select" name="inputState">
+                    <option selected>STATE</option>
+                    {% include 'includes/_states.html' %}
+                </select>
+                <input type="submit" name="submit_button" class="form-control" value="FindZip">
+                <label for="Input">Enter Zip Code</label>
+             
+                <input list="encodings"  name="inputZip" value={{zipcode }} >
+               
+
+            
+
+                    <input type="submit" name="submit_button" class="form-control" value="Submit">
+
+                
+            </div>
+</form>
+    </div>
+
+</header>
