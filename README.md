@@ -18,4 +18,6 @@ This is a personal project to create a weather app.
  - code clean up
  - create a more creative layout 
  - better weather cards that display more info mation 
+ - user to enter new data then it to be saved in the DB 
  - need to clean up this repo
+ 
