@@ -17,7 +17,7 @@ This is a personal project to create a weather app.
  - fixing logout
  - code clean up
  - create a more creative layout 
- - better weather cards that display more info mation 
+ - better weather cards that displays more infomation 
  - user to enter new data then it to be saved in the DB 
  - need to clean up this repo
  
