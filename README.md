@@ -1,7 +1,7 @@
 # PythonFlaskWeatherApp
 This is a personal project to create a weather app.
 
-# componsents
+# components
  - Python with Flask 
  - Firebase for handling login and user data 
  - Openweahter Api for real time weather infomation 
