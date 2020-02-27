@@ -13,8 +13,9 @@ This is a personal project to create a weather app.
  - saving user data
  - register new users 
  
- #work in progress
+ # work in progress
  - fixing logout
  - code clean up
  - create a more creative layout 
  - better weather cards that display more info mation 
+ - need to clean up this repo
