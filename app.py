@@ -1,5 +1,6 @@
 import requests
-from flask import Flask, render_template, flash, redirect, url_for, session, request, logging
+from flask import Flask, render_template, flash, redirect, url_for, session, request, logging, url_for, session
+from flask_session import Session
 from geoLocationByZip import getZipGeoLoc
 from flask_mysqldb import MySQL
 import json
@@ -41,6 +42,9 @@ db = firebase.database()
 TempAll = {}
 
 app = Flask(__name__)
+sess = Session()
+app.config.from_object(__name__)
+
 #auth = firebase.auth()
 #database = firebase.database()
 @app.route('/login', methods = ['GET', 'POST'])
@@ -60,29 +64,18 @@ def login(  ):
                 print(' login fail')
                 return render_template('login.html', error = error)
 
-            login = auth.sign_in_with_email_and_password(username , password )
-            
-            loginSession = login #sets the global to be passed in  to the render template
-            
-            userInfo = db.child('users').child(login['localId']).child('zipcode').get()
-            userVals = userInfo.val()
-            weatherInfo = []
-            interVal = None
-            if userVals != None:
-                for i in userVals:
-                    interVal = getWeatherByZipcode(i)
-                    weatherInfo.append(interVal)
+            loginInfo = auth.sign_in_with_email_and_password(username , password )
+            session['logininfo'] = loginInfo
+            return redirect(url_for('.logedinWithToken'))
 
-                return render_template('home.html', loginID = loginSession, len = len(weatherInfo), result = weatherInfo )
-            else:
-                return render_template('home.html', loginID = loginSession)
+            
            
 
     return render_template('login.html', error = error)
 
 @app.route('/register', methods = ['GET', 'POST'])
 def register( ):
-    from app import loginSession
+    
     message = None
     if request.method == "POST":
         print("you have enter register")
@@ -136,37 +129,7 @@ def logout(): #my logout method
 
 @app.route('/',  methods=['GET', 'POST']) # main page 
 def index(): 
-    from app import loginSession
-    longitude=""
-    latitude =""
-    name = ""
-    if request.method == 'POST':
-        if request.form[ 'submit_button'] == 'Submit':
-           
-           zip = request.form['inputZip']
-
-          
-           geoLoc = getZipGeoLoc(zip)
-           newTemp = getWeatherByGeoLocation(geoLoc[1], geoLoc[0])
-           print("cool story bro")
-           if (geoLoc != False):
-                longitude = geoLoc[1]
-                latitude = geoLoc[0]
-           else:
-               longitude = ""
-               latitude = ""
-           if (newTemp != False):
-            TempAll.append(newTemp)
-            print(longitude,latitude)
-            updateIndex(TempAll, longitude, latitude)
-
-        if request.form[ 'submit_button']== 'FindZip':
-            city =request.form['inputCity']
-            state =request.form['inputState']
-            resZipcode = getZipcode( city , state)
-            stringResZipcode = str(resZipcode)
-            print(stringResZipcode)
-            return updateZipcodeList(stringResZipcode)
+    
     
     return render_template('home.html', loginID = loginSession, len = len(TempAll),result = TempAll)
 
@@ -176,9 +139,106 @@ def updateIndex(TempAll, longitude, latitude):
 def updateZipcodeList(Zipcode):
     return render_template('home.html', loginID = loginSession, len = len(TempAll), result = TempAll,  zipcode = Zipcode)
 
-def logedINWithToken():
-     return render_template('home.html', loginID = loginSession, len = len(TempAll), result = TempAll,  zipcode = Zipcode)
+@app.route('/LoggedIN',  methods=['GET', 'POST'])
+def logedinWithToken():
+    print("LOGGED IN")
+    login = session.get('logininfo', None)
 
+    if request.method == "POST":
+        #print("listing for the data submit")
+       # print(request.form.get['submit'])
+        if request.form ['submit_button'] == 'Submit':
+            return enterNewZipcode()
+        if request.form['submit_button'] == 'FindZip':
+            return findZipByCityAndState()
+
+    userInfo = db.child('users').child(login['localId']).child('zipcode').get()
+    userVals = userInfo.val()
+    weatherInfo = []
+    interVal = None
+   
+    if userVals != None:
+        for i in userVals:
+            interVal = getWeatherByZipcode(i)
+            weatherInfo.append(interVal)
+            print('has info')
+        return render_template('home.html', loginID = login, len = len(weatherInfo), result = weatherInfo )
+    else:
+        print('no login info')
+        return render_template('home.html', loginID = login )
+
+def enterNewZipcode():
+    zipcode =""
+    message =""
+    newZipcode =""
+    weatherInfo = []
+    login = session.get('logininfo', None)
+    userInfo = db.child('users').child(login['localId']).child('zipcode').get()
+    userVals = userInfo.val()
+    newZipcode = request.form["inputZip"]
+    
+    print(newZipcode)
+
+    if (newZipcode == None):
+        #print(newZipcode)
+        message = "zipcode was not entered!"
+        return render_template('home.html' )
+    else:
+        zipcode1 = newZipcode
+        newWeatherInfo = getWeatherByZipcode(newZipcode)
+        
+        if userVals != None:
+            for i in userVals:
+                interVal = getWeatherByZipcode(i)
+                weatherInfo.append(interVal)
+                print('has info')
+            weatherInfo.append(newWeatherInfo)
+            userVals.append(zipcode1)# adding array to be updated to the db 
+            db.child('users').child(login['localId']).child('zipcode').set(userVals) #updates the Database
+            return render_template('home.html', loginID = login, len = len(weatherInfo), result = weatherInfo )
+        else:
+            print('no previous infomation info')
+            userVals = []
+            userVals.append(zipcode1)# adding array to be updated to the db 
+            weatherInfo.append(newWeatherInfo)
+            db.child('users').child(login['localId']).child('zipcode').set(userVals)#updates the Database
+            return render_template('home.html', loginID = login, len = len(weatherInfo), result = weatherInfo )
+
+
+
+def findZipByCityAndState():
+    
+    state = request.form["inputState"]
+    city = request.form["inputCity"]
+    zipcode =""
+    message = ""
+    weatherInfo = []
+    if(state == None or city == None):
+        print("no city or state was entered")
+        message = "no city or state was entered"
+        return render_template('home.html' )
+    else:
+        print("city AND state was entered")
+        zipcode = getZipcode(city,state )
+        login = session.get('logininfo', None)
+        userInfo = db.child('users').child(login['localId']).child('zipcode').get()
+        userVals = userInfo.val()
+        weatherInfo = []
+        interVal = None
+   
+        if userVals != None:
+            for i in userVals:
+                interVal = getWeatherByZipcode(i)
+                weatherInfo.append(interVal)
+                print('has info')
+            return render_template('home.html', loginID = login, len = len(weatherInfo), result = weatherInfo, zipcode = zipcode )
+        else:
+            print('no login info')
+            return render_template('home.html', loginID = login )
+            
+
+    #return render_template('home.html' )
+        
 
 
 
@@ -187,7 +247,13 @@ def logedINWithToken():
 
 if __name__ == '__main__':
     app.secret_key='secret123'
+    app.config['SESSION_TYPE'] = 'filesystem'
+    
+    sess.init_app(app)
     app.run(debug=True)
+
+
+
 
 
 
