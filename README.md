@@ -12,12 +12,13 @@ This is a personal project to create a weather app.
  - loging in with email and password
  - saving user data
  - register new users 
+ - Users can enter in zipcode and have it saved to DB 
  
  # work in progress
  - fixing logout
  - code clean up
  - create a more creative layout 
  - better weather cards that displays more infomation 
- - user to enter new data then it to be saved in the DB 
  - need to clean up this repo
+ - users to delete info
  
