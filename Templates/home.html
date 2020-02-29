@@ -2,45 +2,45 @@
 
 {% block body %}
 {% include 'includes/_navbar.html' %}
-{% if loginID != False %}
-    <div class="container-fluid">
-        {% include 'includes/_jumbotron.html' %}
-    </div>
-{%if len %}
-    <div class="row text-center">
+    <body>
+        {% if loginID != False %}
 
-        {% for i in range(0, len) %}
-
-
-
-        {% if result[i] != 0 %}
+        <div class="container-fluid">
+            {% include 'includes/_jumbotron.html' %}
+        </div>
         
-        <div class="col-lg-3 col-md-6 mb-4">
-            <div class="animated zoomIn">
-                <div class="card h-100">
-                    <div class="animated fadeIn">
-                        <div class="card-body">
-                            {{ result[i] | safe }}
+       
+        {%if len %}
+        <div class="row text-center">
 
+            {% for i in range(0, len) %}
+
+
+
+            {% if result[i] != 0 %}
+
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="animated zoomIn">
+                    <div class="card h-100">
+                        <div class="animated fadeIn">
+                            <div class="card-body">
+                                {{ result[i] | safe }}
+
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
             {% endif %}
             {% endfor %}
 
         </div>
-                {% endif %}
-                {% else %}
-               
-                {% include 'includes/PleaseLogin.html' %}
+        {% endif %}
+        {% else %}
 
-                {% endif %}
+        {% include 'includes/PleaseLogin.html' %}
 
+        {% endif %}
 
-
-
-
-
-                {% endblock %}
+        {% endblock %}
+    </body>

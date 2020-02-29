@@ -24,16 +24,36 @@
                     <div class="container">
                         <div class="row">
                             <button type="submit" class="btn btn-secondary" name="submit_button" value="FindZip"> Need a Zipcode? </button>
-                            <button type="submit" class="btn btn-primary" name="submit_button"  value="Submit"> Find out now! </button>
+                            <button type="submit" class="btn btn-primary" name="submit_button" value="Submit"> Find out now! </button>
 
 
-</div>
                         </div>
 
+                    </div>
+
+                    <div class=" container-fluid">
+                        {%if Zipcodes %}
+                        <select class="custom-select" name="ZipList">
+                            <option selected>Zipcodes</option>
+                            {% for i in Zipcodes %}
+                            <option value={{ i }}>{{ i}}</option>
+                            {% endfor %}
+
+                        </select>
+                        {%else %}
+                        <select class="custom-select" name="ZipList">
+                            <option selected>NOZipcodes</option>
+
+                        </select>
+                        {% endif %}
+
+                        <button type="submit" class="btn btn-danger" name="submit_button" value="deleteZip"> Remove Zip</button>
+                    </div>
 
 
-                       
-</div>
+
+
+                </div>
 </form>
         </div>
 
