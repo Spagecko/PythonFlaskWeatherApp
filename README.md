@@ -16,12 +16,13 @@ This is a personal project to create a weather app.
  - Users can enter in zipcode and have it saved to DB 
  - sastify with theming
  - animations are enable! 
+ - added in Delete Feature
  
  # To do's
  - code in prevention methoods of creating duplicate data
- - Enable Deleted functionalilty for the users
  - code clean up
  - better weather cards that displays more infomation 
  - need to clean up this repo
+ -user regristration needs to be inmproved
 
  
