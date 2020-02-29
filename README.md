@@ -17,8 +17,9 @@ This is a personal project to create a weather app.
  - sastify with theming
  - animations are enable! 
  
- # work in progress
- - fixing logout
+ # To do's
+ - code in prevention methoods of creating duplicate data
+ - Enable Deleted functionalilty for the users
  - code clean up
  - better weather cards that displays more infomation 
  - need to clean up this repo
