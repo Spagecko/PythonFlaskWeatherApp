@@ -17,6 +17,7 @@ from weatherByGeoLocation import getWeatherByGeoLocation
 from collections import OrderedDict
 from weatherByZipcode import getWeatherByZipcode
 
+
 from getpass import getpass
 from firebase_admin import credentials 
 from FireConfig import firebaseConfig # imports the firebase API key <<NOT SAFE FOR GITHUB>>
@@ -42,6 +43,7 @@ db = firebase.database()
 TempAll = {}
 
 app = Flask(__name__)
+
 sess = Session()
 app.config.from_object(__name__)
 
@@ -143,26 +145,33 @@ def updateZipcodeList(Zipcode):
 def logedinWithToken():
     print("LOGGED IN")
     login = session.get('logininfo', None)
+    userInfo = db.child('users').child(login['localId']).child('zipcode').get()
+    userVals = userInfo.val()
+    deleteList = []
+    weatherInfo = []
+    interVal = None
 
     if request.method == "POST":
-        #print("listing for the data submit")
+        print("listing for the data submit")
        # print(request.form.get['submit'])
         if request.form ['submit_button'] == 'Submit':
             return enterNewZipcode()
         if request.form['submit_button'] == 'FindZip':
             return findZipByCityAndState()
+        if request.form['submit_button'] == 'deleteZip':
+            print("is this button press? ")
+            return deleteZipCodeEntry()
 
-    userInfo = db.child('users').child(login['localId']).child('zipcode').get()
-    userVals = userInfo.val()
-    weatherInfo = []
-    interVal = None
+
+
    
     if userVals != None:
         for i in userVals:
             interVal = getWeatherByZipcode(i)
             weatherInfo.append(interVal)
             print('has info')
-        return render_template('home.html', loginID = login, len = len(weatherInfo), result = weatherInfo )
+        return render_template('home.html', loginID = login, len = len(weatherInfo), result = weatherInfo, Zipcodes = userVals )
+                               
     else:
         print('no login info')
         return render_template('home.html', loginID = login )
@@ -195,14 +204,14 @@ def enterNewZipcode():
             weatherInfo.append(newWeatherInfo)
             userVals.append(zipcode1)# adding array to be updated to the db 
             db.child('users').child(login['localId']).child('zipcode').set(userVals) #updates the Database
-            return render_template('home.html', loginID = login, len = len(weatherInfo), result = weatherInfo )
+            return render_template('home.html', loginID = login, len = len(weatherInfo), result = weatherInfo, Zipcodes = userVals )
         else:
             print('no previous infomation info')
             userVals = []
             userVals.append(zipcode1)# adding array to be updated to the db 
             weatherInfo.append(newWeatherInfo)
             db.child('users').child(login['localId']).child('zipcode').set(userVals)#updates the Database
-            return render_template('home.html', loginID = login, len = len(weatherInfo), result = weatherInfo )
+            return render_template('home.html', loginID = login, len = len(weatherInfo), result = weatherInfo, Zipcodes = userVals)
 
 
 
@@ -225,21 +234,44 @@ def findZipByCityAndState():
         userVals = userInfo.val()
         weatherInfo = []
         interVal = None
+        return render_template('home.html', loginID = login, len = len(weatherInfo), result = weatherInfo, zipcode = zipcode )
+        
+
+
+def deleteZipCodeEntry():
+    print("delete button has been pushed!")
+    targetZip = request.form["ZipList"]
+    login = session.get('logininfo', None)
+    userInfo = db.child('users').child(login['localId']).child('zipcode').get()
+    userVals = userInfo.val()
+    print(userVals)
+    print(targetZip)
    
+    if (targetZip == None):
+        message = "no Zipcode was selected"
+        return message
+    if(targetZip in userVals):
+        userVals.remove(targetZip)
+        db.child('users').child(login['localId']).child('zipcode').set(userVals)
+        userInfo = db.child('users').child(login['localId']).child('zipcode').get()
+        userVals = userInfo.val()
+        weatherInfo = []
         if userVals != None:
             for i in userVals:
                 interVal = getWeatherByZipcode(i)
                 weatherInfo.append(interVal)
                 print('has info')
-            return render_template('home.html', loginID = login, len = len(weatherInfo), result = weatherInfo, zipcode = zipcode )
+            return render_template('home.html', loginID = login, len = len(weatherInfo), result = weatherInfo )
         else:
             print('no login info')
             return render_template('home.html', loginID = login )
-            
+    else:
+        print ("not in the list")
+        message = " not in the list"
+        return message 
 
-    #return render_template('home.html' )
-        
 
+     
 
 
 
